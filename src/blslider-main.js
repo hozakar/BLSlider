@@ -4,7 +4,7 @@ var BLSliderObjects = {};
 
 var controllers = [];
 
-var defaultDelay = 50;
+var securityDelay = 100;
 
 var BLSlider = function (el, params) {
     var id = controllers.length,
@@ -51,7 +51,7 @@ var BLSlider = function (el, params) {
             $(el).find('.BLSliderControlButton').removeClass('selected');
             $(el).find('.BLSliderControlButton:nth-child(' + (currentSlide + 1) + ')').addClass('selected');
             params.onAfterMove($(el).find('.BLSlider-current-slide').children());
-        }, params.interval + params.delay + defaultDelay);
+        }, params.interval + params.delay + securityDelay);
         return slideId;
     };
 

@@ -125,7 +125,7 @@ function shiftSlides($slides, timer, currentCSS, nextCSS) {
     setTimeout(function(){
        $slides.current.css(currentCSS);
        $slides.next.css(nextCSS);
-    }, defaultDelay / 2);
+    }, securityDelay / 2);
     
     setTimeout(function() {
         $slides.current.remove();
