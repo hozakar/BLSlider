@@ -48,7 +48,7 @@ BLSliderObjects.scale = function(el, dir, params) {
     };
 };
 
-BLSliderObjects.news = function(el, dir, params) {
+BLSliderObjects.turn = function(el, dir, params) {
     this.init = function(slideId) {
         var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
         var $slides = getSlides(el, transform);

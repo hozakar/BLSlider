@@ -3,7 +3,7 @@ BLSliderObjects.Move = function(el, params) {
         'slide',
         'fade',
         'scale',
-        'news'
+        'turn'
     ];
     
     this.init = function(slideId, dir) {

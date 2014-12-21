@@ -6,7 +6,7 @@ module.exports = function(grunt) {
                 mangle: true,
                 compress: true,
                 banner: "/* \n" +
-                        "**  BLSlider 0.0.0\n" +
+                        "**  BLSlider 0.1.0\n" +
                         "**  https://github.com/hozakar/BLSlider\n" +
                         "**\n" +
                         "**  Copyright 2014, Hakan Ozakar <hozakar@gmail.com>\n" +
@@ -25,7 +25,7 @@ module.exports = function(grunt) {
         concat: {
             options: {
                 banner: "/* \n" +
-                        "**  BLSlider 0.0.0\n" +
+                        "**  BLSlider 0.1.0\n" +
                         "**  https://github.com/hozakar/BLSlider\n" +
                         "**\n" +
                         "**  Copyright 2014, Hakan Ozakar <hozakar@gmail.com>\n" +

@@ -1,8 +1,8 @@
 /* 
-**  BLSlider 0.0.0
+**  BLSlider 0.1.0
 **  https://github.com/hozakar/BLSlider
 **
-**  Copyright 2014, Hakan Ozakar
+**  Copyright 2014, Hakan Ozakar <hozakar@gmail.com>
 **  http://beltslib.net
 **
 **  CC0 1.0 Universal Licence
@@ -412,7 +412,7 @@ BLSliderObjects.Move = function(el, params) {
         'slide',
         'fade',
         'scale',
-        'news'
+        'turn'
     ];
     
     this.init = function(slideId, dir) {
@@ -493,7 +493,7 @@ BLSliderObjects.scale = function(el, dir, params) {
     };
 };
 
-BLSliderObjects.news = function(el, dir, params) {
+BLSliderObjects.turn = function(el, dir, params) {
     this.init = function(slideId) {
         var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
         var $slides = getSlides(el, transform);
