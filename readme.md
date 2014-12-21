@@ -7,10 +7,10 @@ BLSlider
 
 ### Usage
 ```html
-<link rel="stylesheet" href="dist/blslider.css" />
+<link rel="stylesheet" href="blslider.css" />
 
 <script src="jquery.min.js"></script>
-<script src="dist/blslider.js"></script>
+<script src="blslider.js"></script>
 
 <script>
     $('.slider').BLSlider({
@@ -22,13 +22,13 @@ BLSlider
 ### Parameters
 * interval: Interval in millisecons, (Default: 800)
 * duration: Duration in millisecons, (Default: 8000)
-* delay: Delay before moving to new slide in milli seconds, (Default: 0)
-* animation: Animation type (slide (Default), fade, scale, news)
+* delay: Delay before moving to new slide in milliseconds, (Default: 0)
+* animation: Animation type (slide -Default-, fade, scale, news)
 * easing: Easing for slide transition. Any valid CSS transition-timing-function. (Default: cubic-bezier(.5,1.1,.5,1.1))
 * autoPlay: (Default: true)
 * pauseOnHover: (Default: true)
-* navigation: Show or hide previous and ext buttons (Default: true)
-* pagination: Show or hide pagination buttons (Default: true)
+* navigation: Show or hide *previous* and *next* buttons (Default: true)
+* pagination: Show or hide *pagination* buttons (Default: true)
 
 ### Callbacks
 * onBeforeMove: function(currentSlide) {}
