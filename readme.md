@@ -20,23 +20,23 @@ BLSlider
 ```
 
 ### Parameters
-* interval: Interval in millisecons, (Default: 800)
-* duration: Duration in millisecons, (Default: 8000)
-* delay: Delay before moving to new slide in milliseconds, (Default: 0)
-* animation: Animation type (slide -Default-, fade, scale, turn)
-* easing: Easing for slide transition. Any valid CSS transition-timing-function. (Default: cubic-bezier(.5,1.1,.5,1.1))
-* autoPlay: (Default: true)
-* pauseOnHover: (Default: true)
-* navigation: Show or hide *previous* and *next* buttons (Default: true)
-* pagination: Show or hide *pagination* buttons (Default: true)
+* **interval**: Interval in millisecons, (*Default: 800*)
+* **duration**: Duration in millisecons, (*Default: 8000*)
+* **delay**: Delay before moving to new slide in milliseconds, (*Default: 0*)
+* **animation**: Animation type (slide *default*, fade, scale, turn)
+* **easing**: Easing for slide transition. Any valid CSS transition-timing-function. (*Default: cubic-bezier(.5,1.1,.5,1.1)*)
+* **autoPlay**: (*Default: true*)
+* **pauseOnHover**: (*Default: true*)
+* **navigation**: Show or hide **previous** and **next** buttons (Default: true)
+* **pagination**: Show or hide **pagination** buttons (Default: true)
 
 ### Callbacks
-* onBeforeMove: function(currentSlide) {}
-* onAfterMove: function(currentSlide) {}
-* onBeforeInit: function(sliderElement) {}
-* onAfterInit: function(sliderElement) {}
-* onBeforeKill: function(sliderElement) {}
-* onAfterKill: function(sliderElement) {}
+* **onBeforeMove**: function(currentSlide) {}
+* **onAfterMove**: function(currentSlide) {}
+* **onBeforeInit**: function(sliderElement) {}
+* **onAfterInit**: function(sliderElement) {}
+* **onBeforeKill**: function(sliderElement) {}
+* **onAfterKill**: function(sliderElement) {}
 
 ### Functions
 ```javascript
