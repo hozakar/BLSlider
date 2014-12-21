@@ -1,0 +1,104 @@
+.BLSliderContainer {
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.BLSliderContainer .BLSlider-prev, .BLSliderContainer .BLSlider-next {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+  margin: auto;
+  z-index: 999;
+  cursor: pointer;
+  -webkit-transition: opacity 0.4s;
+  -moz-transition: opacity 0.4s;
+  -ms-transition: opacity 0.4s;
+  -o-transition: opacity 0.4s;
+  transition: opacity 0.4s;
+}
+.BLSliderContainer .BLSlider-prev:after, .BLSliderContainer .BLSlider-next:after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 12px;
+  height: 12px;
+  border-top: 3px solid #ffffff;
+  border-left: 3px solid #ffffff;
+}
+.BLSliderContainer .BLSlider-prev {
+  left: 4%;
+  -webkit-transform: rotateZ(315deg);
+  -moz-transform: rotateZ(315deg);
+  -ms-transform: rotateZ(315deg);
+  -o-transform: rotateZ(315deg);
+  transform: rotateZ(315deg);
+}
+.BLSliderContainer .BLSlider-next {
+  right: 4%;
+  -webkit-transform: rotateZ(135deg);
+  -moz-transform: rotateZ(135deg);
+  -ms-transform: rotateZ(135deg);
+  -o-transform: rotateZ(135deg);
+  transform: rotateZ(135deg);
+}
+.BLSliderContainer .BLSlider-buttons {
+  opacity: 0;
+  position: absolute;
+  display: block;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  min-height: 12px;
+  text-align: center;
+  z-index: 999;
+  -webkit-transition: opacity 0.4s;
+  -moz-transition: opacity 0.4s;
+  -ms-transition: opacity 0.4s;
+  -o-transition: opacity 0.4s;
+  transition: opacity 0.4s;
+}
+.BLSliderContainer .BLSlider-buttons .BLSliderButtonList {
+  position: relative;
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: 0;
+}
+.BLSliderContainer .BLSlider-buttons .BLSliderButtonList .BLSliderControlButton {
+  display: inline-block;
+  margin: 0 3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #333333;
+  box-shadow: 0 0 2px #333333;
+  background-color: #d8d8d8;
+  cursor: pointer;
+  -webkit-transition: background-color 0.4s, border-color 0.2s;
+  -moz-transition: background-color 0.4s, border-color 0.2s;
+  -ms-transition: background-color 0.4s, border-color 0.2s;
+  -o-transition: background-color 0.4s, border-color 0.2s;
+  transition: background-color 0.4s, border-color 0.2s;
+}
+.BLSliderContainer .BLSlider-buttons .BLSliderButtonList .BLSliderControlButton:hover {
+  border-color: #666666;
+  background-color: #ffffff;
+}
+.BLSliderContainer .BLSlider-buttons .BLSliderButtonList .BLSliderControlButton.selected {
+  background-color: #33c0c0;
+}
+.BLSliderContainer:hover .BLSlider-prev, .BLSliderContainer:hover .BLSlider-next, .BLSliderContainer:hover .BLSlider-buttons {
+  opacity: 1;
+}

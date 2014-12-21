@@ -1,0 +1,130 @@
+$color-pn-bg:       rgba(0,0,0,.3);
+$color-bg:          #ffffff;
+$color-border:      #333333;
+$color-selected:    #33c0c0;
+
+@function stringify($val) {
+    $str: "";
+    $comma: "";
+    @each $item in $val {
+        $str: $str + $comma + $item;
+        $comma: ", ";
+    }
+    @return unquote($str);
+}
+
+@function str-replace($search, $replace, $val) {
+    @if str-index($replace, $search) {
+        @return $val;
+    }
+    
+    $val: stringify($val);
+    
+    $pos: str-index($val, $search);
+    @if $pos {
+        $newVal: str-slice($val, 1, $pos - 1) + $replace + str-slice($val, $pos + str-length($search));
+        $val: str-replace($search, $replace, $newVal);
+    }
+    
+    @return $val;
+}
+
+@mixin prefixer($prop, $val...) {
+    $prefixes: (-webkit-, -moz-, -ms-, -o-, "");
+    @each $prefix in $prefixes {
+        #{$prefix}#{$prop}: str-replace("-pre-", $prefix, $val);
+    }
+}
+
+.BLSliderContainer {
+    box-sizing: border-box;
+    @include prefixer(user-select, none);
+    
+    .BLSlider-prev, .BLSlider-next {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: $color-pn-bg;
+        margin: auto;
+        z-index: 999;
+        cursor: pointer;
+        @include prefixer(transition, opacity .4s);
+
+        &:after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 12px;
+            height: 12px;
+            border-top: 3px solid $color-bg;
+            border-left: 3px solid $color-bg;
+        }
+    }
+    
+    .BLSlider-prev {
+        left: 4%;
+        @include prefixer(transform, rotateZ(315deg));
+    }
+
+    .BLSlider-next {
+        right: 4%;
+        @include prefixer(transform, rotateZ(135deg));
+    }
+
+    .BLSlider-buttons {
+        opacity: 0;
+        position: absolute;
+        display: block;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 0;
+        margin: 0;
+        min-height: 12px;
+        text-align: center;
+        z-index: 999;
+        @include prefixer(transition, opacity.4s);
+        
+        .BLSliderButtonList {
+            position: relative;
+            display: inline-block;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            font-size: 0;
+            
+            .BLSliderControlButton {
+                display: inline-block;
+                margin: 0 3px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                border: 1px solid $color-border;
+                box-shadow: 0 0 2px $color-border;
+                background-color: $color-bg * .85;
+                cursor: pointer;
+                @include prefixer(transition, background-color .4s, border-color .2s);
+                
+                &:hover {
+                    border-color: $color-border * 2;
+                    background-color: $color-bg;
+                }
+
+                &.selected {
+                    background-color: $color-selected;
+                }
+            }
+        }
+    }
+    
+    &:hover {
+        .BLSlider-prev, .BLSlider-next, .BLSlider-buttons {
+            opacity: 1;
+        }
+    }
+}
