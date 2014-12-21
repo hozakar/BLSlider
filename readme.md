@@ -39,7 +39,7 @@ BLSlider
 * onAfterKill: function(sliderElement) {}
 
 ### Functions
-```script
+```javascript
 /*
  * Moves to next slide
  * Returns an array of slide ids
