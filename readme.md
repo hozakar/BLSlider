@@ -60,7 +60,7 @@ $('.slider).BLSPrev();
  * Returns an array of slide ids
  * for every effected slide object
  */
-$('.slider).BLSMoveTo();
+$('.slider).BLSMoveTo(slideId);
 
 /*
  * Starts the slider(s)
