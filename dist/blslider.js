@@ -1,13 +1,13 @@
 /* 
-**  BLSlider 0.1.0
-**  https://github.com/hozakar/BLSlider
-**
-**  Copyright 2014, Hakan Ozakar <hozakar@gmail.com>
-**  http://beltslib.net
-**
-**  CC0 1.0 Universal Licence
-**  https://creativecommons.org/publicdomain/zero/1.0/
-*/
+ *  BLSlider v0.1.0
+ *  https://github.com/hozakar/BLSlider
+ *
+ *  Copyright 2014, Hakan Ozakar <hozakar@gmail.com>
+ *  http://beltslib.net
+ *
+ *  CC0 1.0 Universal Licence
+ *  https://creativecommons.org/publicdomain/zero/1.0/
+ */
 (function ($) {
 "use strict";
 

@@ -1,6 +1,6 @@
 {
   "name": "BLSider",
-  "version": "0.1.0",
+  "version": "v0.1.0",
   "description": "A simple and effective slider",
   "main": "blslider.js",
   "scripts": {
