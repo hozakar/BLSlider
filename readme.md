@@ -45,7 +45,7 @@ BLSlider
  * Returns an array of slide ids
  * for every effected slide object
  */
-$('.slider).BLSNext();
+$('.slider').BLSNext();
 
 
 /*
@@ -53,32 +53,32 @@ $('.slider).BLSNext();
  * Returns an array of slide ids
  * for every effected slide object
  */
-$('.slider).BLSPrev();
+$('.slider').BLSPrev();
 
 /*
  * Moves to a given slide
  * Returns an array of slide ids
  * for every effected slide object
  */
-$('.slider).BLSMoveTo(slideId);
+$('.slider').BLSMoveTo(slideId);
 
 /*
  * Starts the slider(s)
  * Returns true if successful
  */
-$('.slider).BLSPlay();
+$('.slider').BLSPlay();
 
 /*
  * Stops the slider(s)
  * Returns true if successful
  */
-$('.slider).BLSStop();
+$('.slider').BLSStop();
 
 /*
  * Terminates the slider(s)
  * Returns true if successful
  */
-$('.slider).BLSKill();
+$('.slider').BLSKill();
 
 ```
 
