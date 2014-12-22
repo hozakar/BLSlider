@@ -127,4 +127,10 @@ $color-selected:    #33c0c0;
             opacity: 1;
         }
     }
+    
+    .BLSlider-buttons, .BLSlider-next, .BLSlider-prev {
+        &.show-always {
+            opacity: 1 !important;
+        }
+    }
 }

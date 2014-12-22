@@ -85,18 +85,24 @@ BLSliderObjects.PrepDOM = function (el, params) {
             });
         }
         
-        if(!params.navigation && !params.pagination) return;
+        if(params.showNavigation === 'never' && params.showPagination === 'never') return;
         
-        if(params.navigation) {
+        if(params.showNavigation !== 'never') {
             $container.append(
                 '<div class="BLSlider-prev" data-role="prev"></div>' + 
                 '<div class="BLSlider-next" data-role="next"></div>'
             );
+            if(params.showNavigation === 'always') {
+                $('.BLSlider-prev, .BLSlider-next'). addClass('show-always');
+            }
         }
-        if(params.pagination) {
+        if(params.showPagination !== 'never') {
             $container.append('<div class="BLSlider-buttons"><ul class="BLSliderButtonList"></ul></div>');
             for(var i = 0, len = slides.length; i < len; i++) {
                 $container.find('.BLSliderButtonList').append('<li class="BLSliderControlButton" data-slide-id="' + i + '" data-role="moveTo"></li>');
+            }
+            if(params.showPagination === 'always') {
+                $('.BLSlider-buttons'). addClass('show-always');
             }
         }
         
@@ -166,10 +172,11 @@ BLSliderObjects.PrepDOM = function (el, params) {
     
     function trackStart(e) {
         e = e || event;
-        if(e.button !== 0) return;
-        e.preventDefault();
+        if(e.button !== 0 && e.button !== undefined) return;
+        if(e.button !== undefined) e.preventDefault();
+        
         var start = {
-            x: e.pageX || e.changedTouches[0].pageX,
+            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
             t: Date.now()
         };
         $(el).data('mouse-tracker-start', start);
@@ -186,7 +193,7 @@ BLSliderObjects.PrepDOM = function (el, params) {
         if(! $(el).data('mouse-tracker-start')['x']) return;
         e.preventDefault();
         var movement = {
-            x: e.pageX || e.changedTouches[0].pageX,
+            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
             t: Date.now()
         };
         $(el).data('mouse-tracker-move', movement);

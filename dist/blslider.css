@@ -102,3 +102,6 @@
 .BLSliderContainer:hover .BLSlider-prev, .BLSliderContainer:hover .BLSlider-next, .BLSliderContainer:hover .BLSlider-buttons {
   opacity: 1;
 }
+.BLSliderContainer .BLSlider-buttons.show-always, .BLSliderContainer .BLSlider-next.show-always, .BLSliderContainer .BLSlider-prev.show-always {
+  opacity: 1 !important;
+}

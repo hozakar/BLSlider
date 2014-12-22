@@ -24,11 +24,11 @@ BLSlider
 * **duration**: Duration in millisecons, (*Default: 8000*)
 * **delay**: Delay before moving to new slide in milliseconds, (*Default: 0*)
 * **animation**: Animation type (slide *default*, fade, scale, turn)
-* **easing**: Easing for slide transition. Any valid CSS transition-timing-function. (*Default: cubic-bezier(.5,1.1,.5,1.1)*)
+* **easing**: Easing for slide transition. Any valid CSS transition-timing-function. (*Default: ease-in-out*)
 * **autoPlay**: (*Default: true*)
 * **pauseOnHover**: (*Default: true*)
-* **navigation**: Show or hide **previous** and **next** buttons (Default: true)
-* **pagination**: Show or hide **pagination** buttons (Default: true)
+* **showNavigation**: Show or hide **previous** and **next** buttons. (always, never, hover *default*)
+* **showPagination**: Show or hide **pagination** buttons. (always, never, hover *default*)
 
 ### Callbacks
 * **onBeforeMove**: function(currentSlide) {}
