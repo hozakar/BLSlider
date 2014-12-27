@@ -12,6 +12,12 @@
 "use strict";
 var BLSliderObjects = {};
 
+var msie = 999;
+
+if(navigator.appName.indexOf('Internet Explorer') > -1) {
+    msie = parseInt(navigator.appVersion.split('MSIE ')[1].split('.')[0]);
+}
+
 BLSliderObjects.PrepDOM = function (el, params) {
     this.el = el;
     
@@ -26,7 +32,7 @@ BLSliderObjects.PrepDOM = function (el, params) {
     /**
      * Container object must be positioned
      */
-    if (!$(el).css('position') || $(el).css('position') == 'static')
+    if (!$(el).css('position') || $(el).css('position') === 'static')
         $(el).css('position', 'relative');
 
     /**
@@ -41,6 +47,9 @@ BLSliderObjects.PrepDOM = function (el, params) {
     this.slides = slides;
 
     $(el).html('<div class="BLSliderContainer"></div>');
+    if(msie <= 8) {
+        $(el).find('.BLSliderContainer').addClass('ie8');
+    }
     $(el).find('.BLSliderContainer').css({
         position: 'relative',
         top: 0,
@@ -91,7 +100,6 @@ BLSliderObjects.PrepDOM = function (el, params) {
         }
         
         $container.click(function(e){
-            e = e || event;
             var clickedTo = e.toElement || e.relatedTarget || e.target || false;
             if(!clickedTo) return false;
             
@@ -123,7 +131,7 @@ BLSliderObjects.PrepDOM = function (el, params) {
                 start : $(el).data('mouse-tracker-start'),
                 movement: $(el).data('mouse-tracker-move')
             };
-        
+
         if(!data.start.x) return;
         
         var xDif = data.movement.x - data.start.x;
@@ -155,32 +163,33 @@ BLSliderObjects.PrepDOM = function (el, params) {
     }
     
     function trackStart(e) {
-        e = e || event;
-        if(e.button !== 0 && e.button !== undefined) return;
-        if(e.button !== undefined) e.preventDefault();
+        var button = e.button === (msie <= 8 ? 1 : 0);
+
+        if(!button) return;
+        
+        e.preventDefault();
         
         var start = {
-            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
-            t: Date.now()
+            x: e.clientX || e.originalEvent.changedTouches[0].pageX,
+            t: msie <= 8 ? +new Date() : Date.now()
         };
         $(el).data('mouse-tracker-start', start);
     }
     
     function trackStop(e) {
-        e = e || event;
         e.preventDefault();
         resetTracker();
     }
 
     function trackMove(e){
-        e = e || event;
         if(! $(el).data('mouse-tracker-start')['x']) return;
         e.preventDefault();
         var movement = {
-            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
-            t: Date.now()
+            x: e.clientX || e.originalEvent.changedTouches[0].pageX,
+            t: msie <= 8 ? +new Date() : Date.now()
         };
         $(el).data('mouse-tracker-move', movement);
+
         evalTrackerData();
     }
 };
@@ -242,9 +251,14 @@ BLSliderObjects.Move = function(el, params) {
     this.el = el;
     this.params = params;
     this.animType = 'slide';
+    this.animPrefix = '';
 
-    if(typeof this[params.animation.toLowerCase()] !== "undefined")
-        this.animType = params.animation.toLowerCase();
+    if(msie < 10) this.animPrefix = 'js';
+    
+    this.animType = this.animPrefix + this.animType;
+    
+    if(typeof this[this.animPrefix + params.animation.toLowerCase()] !== "undefined")
+        this.animType = this.animPrefix + params.animation.toLowerCase();
 };
 
 BLSliderObjects.Move.prototype.to = function(slideId, dir) {
@@ -253,7 +267,13 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
             params = this.params;
     
     if(checkCurrentSlide()) return;
-
+    
+    var slideAnim = $( $(el).data('BLSliderSlides')[slideId] ).data('animation') || '';
+    if(slideAnim) slideAnim = this.animPrefix + slideAnim;
+    
+    if(typeof this[slideAnim.toLowerCase()] !== "undefined")
+        animType = slideAnim.toLowerCase();
+    
     var anim = this;
     setTimeout(function() {
         anim[animType](slideId, dir);
@@ -289,7 +309,12 @@ BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
 
     var currentCSS = { left: (-100 * dir) + '%' },
         nextCSS = { left: 0 };
-    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+
+    shiftSlides($slides, params.interval, currentCSS, nextCSS, arguments[2]);
+};
+
+BLSliderObjects.Move.prototype.jsslide = function(slideId, dir) {
+    this.slide(slideId, dir, true);
 };
 
 BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
@@ -306,7 +331,12 @@ BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
 
     var currentCSS = { opacity: 0 },
         nextCSS = { opacity: 1 };
-    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+
+    shiftSlides($slides, params.interval, currentCSS, nextCSS, arguments[2]);
+};
+
+BLSliderObjects.Move.prototype.jsfade = function(slideId, dir) {
+    this.fade(slideId, dir, true);
 };
 
 BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
@@ -401,17 +431,25 @@ function getSlides(el, css) {
     return slides;
 }
 
-function shiftSlides($slides, timer, currentCSS, nextCSS) {
-    setTimeout(function(){
-       $slides.current.css(currentCSS);
-       $slides.next.css(nextCSS);
-    }, securityDelay / 2);
+function shiftSlides($slides, timer, currentCSS, nextCSS, js) {
+    if(js) {
+        setTimeout(function(){
+           $slides.current.animate(currentCSS, timer);
+           $slides.next.animate(nextCSS, timer);
+        }, securityDelay / 2);
+    } else {
+        setTimeout(function(){
+           $slides.current.css(currentCSS);
+           $slides.next.css(nextCSS);
+        }, securityDelay / 2);
+    }
     
     setTimeout(function() {
         $slides.current.remove();
         $slides.next.attr('class', 'BLSlider-current-slide').css(setPrefix('-pre-transition : none'));
     }, timer);
 }
+
 var controllers = [];
 
 var securityDelay = 100;

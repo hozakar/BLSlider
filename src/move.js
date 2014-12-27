@@ -2,9 +2,14 @@ BLSliderObjects.Move = function(el, params) {
     this.el = el;
     this.params = params;
     this.animType = 'slide';
+    this.animPrefix = '';
 
-    if(typeof this[params.animation.toLowerCase()] !== "undefined")
-        this.animType = params.animation.toLowerCase();
+    if(msie < 10) this.animPrefix = 'js';
+    
+    this.animType = this.animPrefix + this.animType;
+    
+    if(typeof this[this.animPrefix + params.animation.toLowerCase()] !== "undefined")
+        this.animType = this.animPrefix + params.animation.toLowerCase();
 };
 
 BLSliderObjects.Move.prototype.to = function(slideId, dir) {
@@ -13,7 +18,13 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
             params = this.params;
     
     if(checkCurrentSlide()) return;
-
+    
+    var slideAnim = $( $(el).data('BLSliderSlides')[slideId] ).data('animation') || '';
+    if(slideAnim) slideAnim = this.animPrefix + slideAnim;
+    
+    if(typeof this[slideAnim.toLowerCase()] !== "undefined")
+        animType = slideAnim.toLowerCase();
+    
     var anim = this;
     setTimeout(function() {
         anim[animType](slideId, dir);

@@ -1,6 +1,12 @@
 "use strict";
 var BLSliderObjects = {};
 
+var msie = 999;
+
+if(navigator.appName.indexOf('Internet Explorer') > -1) {
+    msie = parseInt(navigator.appVersion.split('MSIE ')[1].split('.')[0]);
+}
+
 BLSliderObjects.PrepDOM = function (el, params) {
     this.el = el;
     
@@ -15,7 +21,7 @@ BLSliderObjects.PrepDOM = function (el, params) {
     /**
      * Container object must be positioned
      */
-    if (!$(el).css('position') || $(el).css('position') == 'static')
+    if (!$(el).css('position') || $(el).css('position') === 'static')
         $(el).css('position', 'relative');
 
     /**
@@ -30,6 +36,9 @@ BLSliderObjects.PrepDOM = function (el, params) {
     this.slides = slides;
 
     $(el).html('<div class="BLSliderContainer"></div>');
+    if(msie <= 8) {
+        $(el).find('.BLSliderContainer').addClass('ie8');
+    }
     $(el).find('.BLSliderContainer').css({
         position: 'relative',
         top: 0,
@@ -80,7 +89,6 @@ BLSliderObjects.PrepDOM = function (el, params) {
         }
         
         $container.click(function(e){
-            e = e || event;
             var clickedTo = e.toElement || e.relatedTarget || e.target || false;
             if(!clickedTo) return false;
             
@@ -112,7 +120,7 @@ BLSliderObjects.PrepDOM = function (el, params) {
                 start : $(el).data('mouse-tracker-start'),
                 movement: $(el).data('mouse-tracker-move')
             };
-        
+
         if(!data.start.x) return;
         
         var xDif = data.movement.x - data.start.x;
@@ -144,32 +152,33 @@ BLSliderObjects.PrepDOM = function (el, params) {
     }
     
     function trackStart(e) {
-        e = e || event;
-        if(e.button !== 0 && e.button !== undefined) return;
-        if(e.button !== undefined) e.preventDefault();
+        var button = e.button === (msie <= 8 ? 1 : 0);
+
+        if(!button) return;
+        
+        e.preventDefault();
         
         var start = {
-            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
-            t: Date.now()
+            x: e.clientX || e.originalEvent.changedTouches[0].pageX,
+            t: msie <= 8 ? +new Date() : Date.now()
         };
         $(el).data('mouse-tracker-start', start);
     }
     
     function trackStop(e) {
-        e = e || event;
         e.preventDefault();
         resetTracker();
     }
 
     function trackMove(e){
-        e = e || event;
         if(! $(el).data('mouse-tracker-start')['x']) return;
         e.preventDefault();
         var movement = {
-            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
-            t: Date.now()
+            x: e.clientX || e.originalEvent.changedTouches[0].pageX,
+            t: msie <= 8 ? +new Date() : Date.now()
         };
         $(el).data('mouse-tracker-move', movement);
+
         evalTrackerData();
     }
 };

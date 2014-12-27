@@ -13,7 +13,12 @@ BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
 
     var currentCSS = { left: (-100 * dir) + '%' },
         nextCSS = { left: 0 };
-    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+
+    shiftSlides($slides, params.interval, currentCSS, nextCSS, arguments[2]);
+};
+
+BLSliderObjects.Move.prototype.jsslide = function(slideId, dir) {
+    this.slide(slideId, dir, true);
 };
 
 BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
@@ -30,7 +35,12 @@ BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
 
     var currentCSS = { opacity: 0 },
         nextCSS = { opacity: 1 };
-    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+
+    shiftSlides($slides, params.interval, currentCSS, nextCSS, arguments[2]);
+};
+
+BLSliderObjects.Move.prototype.jsfade = function(slideId, dir) {
+    this.fade(slideId, dir, true);
 };
 
 BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
@@ -125,11 +135,18 @@ function getSlides(el, css) {
     return slides;
 }
 
-function shiftSlides($slides, timer, currentCSS, nextCSS) {
-    setTimeout(function(){
-       $slides.current.css(currentCSS);
-       $slides.next.css(nextCSS);
-    }, securityDelay / 2);
+function shiftSlides($slides, timer, currentCSS, nextCSS, js) {
+    if(js) {
+        setTimeout(function(){
+           $slides.current.animate(currentCSS, timer);
+           $slides.next.animate(nextCSS, timer);
+        }, securityDelay / 2);
+    } else {
+        setTimeout(function(){
+           $slides.current.css(currentCSS);
+           $slides.next.css(nextCSS);
+        }, securityDelay / 2);
+    }
     
     setTimeout(function() {
         $slides.current.remove();

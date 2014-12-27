@@ -8,6 +8,7 @@
 }
 .BLSliderContainer .BLSlider-prev, .BLSliderContainer .BLSlider-next {
   opacity: 0;
+  filter: alpha(opacity=0);
   position: absolute;
   top: 0;
   bottom: 0;
@@ -50,8 +51,22 @@
   -o-transform: rotateZ(135deg);
   transform: rotateZ(135deg);
 }
+.BLSliderContainer.ie8 .BLSlider-prev:after, .BLSliderContainer.ie8 .BLSlider-next:after {
+  color: #ffffff;
+  font-family: sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  border: none;
+}
+.BLSliderContainer.ie8 .BLSlider-prev:after {
+  content: '\00AB';
+}
+.BLSliderContainer.ie8 .BLSlider-next:after {
+  content: '\00BB';
+}
 .BLSliderContainer .BLSlider-buttons {
   opacity: 0;
+  filter: alpha(opacity=0);
   position: absolute;
   display: block;
   right: 0;
@@ -101,7 +116,9 @@
 }
 .BLSliderContainer:hover .BLSlider-prev, .BLSliderContainer:hover .BLSlider-next, .BLSliderContainer:hover .BLSlider-buttons {
   opacity: 1;
+  filter: alpha(opacity=100);
 }
 .BLSliderContainer .BLSlider-buttons.show-always, .BLSliderContainer .BLSlider-next.show-always, .BLSliderContainer .BLSlider-prev.show-always {
   opacity: 1 !important;
+  filter: alpha(opacity=100) !important;
 }
