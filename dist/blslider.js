@@ -357,24 +357,6 @@ BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
     shiftSlides($slides, params.interval, currentCSS, nextCSS);
 };
 
-BLSliderObjects.Move.prototype.turn = function(slideId, dir) {
-    var el = this.el;
-    var params = this.params;
-
-    var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
-    var $slides = getSlides(el, transform);
-
-    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-
-    var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
-    $slides.current.css( transition );
-    $slides.next.css( transition );
-
-    var currentCSS = setPrefix('opacity: 0;'),
-        nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1) rotateZ(' + (0 + (dir * 360)) + 'deg)');
-    shiftSlides($slides, params.interval, currentCSS, nextCSS);
-};
-
 function setPrefix(prop) {
     var setProp = {};
     var prefixes = [ "-webkit-", "-moz-", "-ms-", "-o-", "" ];

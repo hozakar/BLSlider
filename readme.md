@@ -23,7 +23,7 @@ BLSlider
 * **interval**: Interval in millisecons, (*Default: 800*)
 * **duration**: Duration in millisecons, (*Default: 8000*)
 * **delay**: Delay before moving to new slide in milliseconds, (*Default: 0*)
-* **animation**: Animation type (slide *default*, fade, scale, turn)
+* **animation**: Animation type (slide *default*, fade, scale)
 * **easing**: Easing for slide transition. Any valid CSS transition-timing-function. (*Default: ease-in-out*)
 * **autoPlay**: (*Default: true*)
 * **pauseOnHover**: (*Default: true*)
