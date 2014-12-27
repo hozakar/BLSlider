@@ -1,78 +1,51 @@
+"use strict";
+var BLSliderObjects = {};
+
 BLSliderObjects.PrepDOM = function (el, params) {
+    this.el = el;
     
-    this.init = function() {
-        /**
-         * We must keep some original values before manipulating the DOM
-         */
-        $(el).data('width', el.style.width);
-        $(el).data('height', el.style.height);
-        $(el).data('position', el.style.position);
-        $(el).data('overflow', el.style.overflow);
+    /**
+     * We must keep some original values before manipulating the DOM
+     */
+    $(el).data('width', el.style.width);
+    $(el).data('height', el.style.height);
+    $(el).data('position', el.style.position);
+    $(el).data('overflow', el.style.overflow);
 
-        /**
-         * Container object must be positioned
-         */
-        if (!$(el).css('position') || $(el).css('position') == 'static')
-            $(el).css('position', 'relative');
-        
-        /**
-         * Now we can store the children elements
-         * in an array to send. After that we can
-         * delete all the child nodes from our container
-         */
-        var slides = [];
-        $(el).children().each(function() {
-            slides.push($(this).clone()[0]);
-        });
-        
-        $(el).html('<div class="BLSliderContainer"></div>');
-        $(el).find('.BLSliderContainer').css({
-            position: 'relative',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden'
-        });
-        
-        createControls(slides);
-        
-        resetTracker();
+    /**
+     * Container object must be positioned
+     */
+    if (!$(el).css('position') || $(el).css('position') == 'static')
+        $(el).css('position', 'relative');
 
-        trackMouse();
-        
-        trackTouch();
-        
-        return slides;
-    };
-    
-    this.kill = function(slides, id) {
-        controllers[id].stop();
-        /*
-         * We must restore the original css values
-         * so the container element can display
-         * exactly the same before we manipulate the DOM
-         */
-        $(el).css({
-            position: $(el).data('position'),
-            width: $(el).data('width'),
-            height: $(el).data('height'),
-            overflow: $(el).data('overflow')
-        });
+    /**
+     * Now we can store the children elements
+     * in an array to send. After that we can
+     * delete all the child nodes from our container
+     */
+    var slides = [];
+    $(el).children().each(function() {
+        slides.push($(this).clone()[0]);
+    });
+    this.slides = slides;
 
-        /*
-         * Now we can restore it back
-         */
-        $(el).html('');
-        var slideCount = slides.length;
-        while(slides.length > 0) {
-            $(slides.shift()).clone(true).appendTo(el);
-        }
-        controllers[id] = null;
-        $(el).data('BLSliderControllerId', null);
-        $(el).data('BLSliderSlides', null);
-        return (slideCount === $(el).children().length);
-    };
+    $(el).html('<div class="BLSliderContainer"></div>');
+    $(el).find('.BLSliderContainer').css({
+        position: 'relative',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden'
+    });
+
+    createControls(slides);
+
+    resetTracker();
+
+    trackMouse();
+
+    trackTouch();
     
     function createControls(slides) {
         var $container = $(el).children('.BLSliderContainer');
@@ -199,4 +172,37 @@ BLSliderObjects.PrepDOM = function (el, params) {
         $(el).data('mouse-tracker-move', movement);
         evalTrackerData();
     }
+};
+
+BLSliderObjects.PrepDOM.prototype.getSlides = function() {
+    return this.slides;
+};
+
+BLSliderObjects.PrepDOM.prototype.kill = function(slides, id) {
+    var el = this.el;
+    controllers[id].stop();
+    /*
+     * We must restore the original css values
+     * so the container element can display
+     * exactly the same before we manipulate the DOM
+     */
+    $(el).css({
+        position: $(el).data('position'),
+        width: $(el).data('width'),
+        height: $(el).data('height'),
+        overflow: $(el).data('overflow')
+    });
+
+    /*
+     * Now we can restore it back
+     */
+    $(el).html('');
+    var slideCount = slides.length;
+    while(slides.length > 0) {
+        $(slides.shift()).clone(true).appendTo(el);
+    }
+    controllers[id] = null;
+    $(el).data('BLSliderControllerId', null);
+    $(el).data('BLSliderSlides', null);
+    return (slideCount === $(el).children().length);
 };

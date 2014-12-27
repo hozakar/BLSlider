@@ -1,7 +1,3 @@
-"use strict";
-
-var BLSliderObjects = {};
-
 var controllers = [];
 
 var securityDelay = 100;
@@ -12,12 +8,12 @@ var BLSlider = function (el, params) {
         moving = false;
     
     params.onBeforeInit($(el));
-    
+
     var prepDOM = new BLSliderObjects.PrepDOM(el, params);
     var move = new BLSliderObjects.Move(el, params);
     var timer = new BLSliderObjects.Timer(this);
 
-    this.slides = prepDOM.init();
+    this.slides = prepDOM.getSlides();
     
     this.next = function() {
         var slideId = (currentSlide + 1) % this.slides.length;
@@ -38,7 +34,7 @@ var BLSlider = function (el, params) {
         
         dir = dir || ( (slideId - currentSlide) / Math.max( 1, Math.abs(slideId - currentSlide) ) );
 
-        move.init(slideId, dir);
+        move.to(slideId, dir);
         /*
          * If is on autoPlay we must reset the play timer
          */

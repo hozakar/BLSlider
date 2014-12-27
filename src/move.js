@@ -1,26 +1,25 @@
 BLSliderObjects.Move = function(el, params) {
-    var availableAnimations = [
-        'slide',
-        'fade',
-        'scale',
-        'turn'
-    ];
+    this.el = el;
+    this.params = params;
+    this.animType = 'slide';
+
+    if(typeof this[params.animation.toLowerCase()] !== "undefined")
+        this.animType = params.animation.toLowerCase();
+};
+
+BLSliderObjects.Move.prototype.to = function(slideId, dir) {
+    var el = this.el,
+            animType = this.animType,
+            params = this.params;
     
-    this.init = function(slideId, dir) {
-        var animType = 'slide';
-        
-        if(availableAnimations.indexOf(params.animation.toLowerCase()) !== -1)
-            animType = params.animation.toLowerCase();
-        
-        if(checkCurrentSlide(el, slideId)) return;
+    if(checkCurrentSlide()) return;
 
-        var anim = new BLSliderObjects[animType](el, dir, params);
-        setTimeout(function() {
-            anim.init(slideId);
-        }, params.delay);
-    };
+    var anim = this;
+    setTimeout(function() {
+        anim[animType](slideId, dir);
+    }, params.delay);
 
-    function checkCurrentSlide(el, slideId) {
+    function checkCurrentSlide() {
         var slide = $(el).data('BLSliderSlides')[slideId];
         var $currentSlide = $(el).find('.BLSlider-current-slide');
 

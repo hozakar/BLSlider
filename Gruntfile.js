@@ -38,7 +38,7 @@ module.exports = function(grunt) {
                 footer: "\n}(jQuery));"
             },
             dist: {
-                src: ['src/blslider-main.js', 'src/prepdom.js', 'src/timer.js', 'src/move.js', 'src/animation.js'],
+                src: ['src/prepdom.js', 'src/timer.js', 'src/move.js', 'src/animation.js', 'src/blslider-main.js'],
                 dest: 'dist/blslider.js'
             }
         },

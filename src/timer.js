@@ -1,18 +1,19 @@
 BLSliderObjects.Timer = function (self) {
-    
-    var timerHandle = false;
-    
-    this.open = function(params) {
-        if(timerHandle) clearInterval(timerHandle);
-        timerHandle = false;
-        return(timerHandle = setInterval(function(){
-            self.next();
-        }, params.interval + params.duration));
-    };
-    
-    this.close = function() {
-        clearInterval(timerHandle);
-        timerHandle = false;
-        return true;
-    };
+    this.timerHandle = false;
+    this.self = self;
+};
+
+BLSliderObjects.Timer.prototype.open = function(params) {
+    if(this.timerHandle) clearInterval(this.timerHandle);
+    this.timerHandle = false;
+    var control = this.self;
+    return(this.timerHandle = setInterval(function(){
+        control.next();
+    }, params.interval + params.duration));
+};
+
+BLSliderObjects.Timer.prototype.close = function() {
+    clearInterval(this.timerHandle);
+    this.timerHandle = false;
+    return true;
 };

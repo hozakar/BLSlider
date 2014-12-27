@@ -10,9 +10,408 @@
  */
 (function ($) {
 "use strict";
-
 var BLSliderObjects = {};
 
+BLSliderObjects.PrepDOM = function (el, params) {
+    this.el = el;
+    
+    /**
+     * We must keep some original values before manipulating the DOM
+     */
+    $(el).data('width', el.style.width);
+    $(el).data('height', el.style.height);
+    $(el).data('position', el.style.position);
+    $(el).data('overflow', el.style.overflow);
+
+    /**
+     * Container object must be positioned
+     */
+    if (!$(el).css('position') || $(el).css('position') == 'static')
+        $(el).css('position', 'relative');
+
+    /**
+     * Now we can store the children elements
+     * in an array to send. After that we can
+     * delete all the child nodes from our container
+     */
+    var slides = [];
+    $(el).children().each(function() {
+        slides.push($(this).clone()[0]);
+    });
+    this.slides = slides;
+
+    $(el).html('<div class="BLSliderContainer"></div>');
+    $(el).find('.BLSliderContainer').css({
+        position: 'relative',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden'
+    });
+
+    createControls(slides);
+
+    resetTracker();
+
+    trackMouse();
+
+    trackTouch();
+    
+    function createControls(slides) {
+        var $container = $(el).children('.BLSliderContainer');
+
+        if(params.autoPlay && params.pauseOnHover) {
+            $container.hover(function() {
+                $(el).BLSStop();
+            }).mouseleave(function() {
+                $(el).BLSPlay();
+            });
+        }
+        
+        if(params.showNavigation === 'never' && params.showPagination === 'never') return;
+        
+        if(params.showNavigation !== 'never') {
+            $container.append(
+                '<div class="BLSlider-prev" data-role="prev"></div>' + 
+                '<div class="BLSlider-next" data-role="next"></div>'
+            );
+            if(params.showNavigation === 'always') {
+                $('.BLSlider-prev, .BLSlider-next'). addClass('show-always');
+            }
+        }
+        if(params.showPagination !== 'never') {
+            $container.append('<div class="BLSlider-buttons"><ul class="BLSliderButtonList"></ul></div>');
+            for(var i = 0, len = slides.length; i < len; i++) {
+                $container.find('.BLSliderButtonList').append('<li class="BLSliderControlButton" data-slide-id="' + i + '" data-role="moveTo"></li>');
+            }
+            if(params.showPagination === 'always') {
+                $('.BLSlider-buttons'). addClass('show-always');
+            }
+        }
+        
+        $container.click(function(e){
+            e = e || event;
+            var clickedTo = e.toElement || e.relatedTarget || e.target || false;
+            if(!clickedTo) return false;
+            
+            switch($(clickedTo).data('role')) {
+                case 'prev':
+                    $(el).BLSPrev();
+                    break;
+                case 'next':
+                    $(el).BLSNext();
+                    break;
+                case 'moveTo':
+                    var slideId = parseInt($(clickedTo).data('slide-id')) || 0;
+                    $(el).BLSMoveTo(slideId);
+                    break;
+            }
+        });
+    }
+    
+    function trackMouse() {
+        $(el).on('mousedown', trackStart).on('mouseup', trackStop).on('mousemove', trackMove);
+    }
+
+    function trackTouch() {
+        $(el).on('touchstart', trackStart).on('touchend', trackStop).on('touchmove', trackMove);
+    }
+
+    function evalTrackerData() {
+        var data = {
+                start : $(el).data('mouse-tracker-start'),
+                movement: $(el).data('mouse-tracker-move')
+            };
+        
+        if(!data.start.x) return;
+        
+        var xDif = data.movement.x - data.start.x;
+        
+        if(!xDif) return;
+        
+        var dir = xDif / Math.abs(xDif);
+        xDif = Math.abs(xDif);
+        
+        var tDif = data.movement.t - data.start.t;
+        
+        if(xDif > 50) {
+            if(dir > 0) {
+                $(el).BLSPrev();
+            } else {
+                $(el).BLSNext();
+            }
+            resetTracker();
+        }
+
+        if(tDif > 150) {
+            resetTracker();
+        }
+    }
+    
+    function resetTracker() {
+        $(el).data('mouse-tracker-start', {});
+        $(el).data('mouse-tracker-move', {});
+    }
+    
+    function trackStart(e) {
+        e = e || event;
+        if(e.button !== 0 && e.button !== undefined) return;
+        if(e.button !== undefined) e.preventDefault();
+        
+        var start = {
+            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
+            t: Date.now()
+        };
+        $(el).data('mouse-tracker-start', start);
+    }
+    
+    function trackStop(e) {
+        e = e || event;
+        e.preventDefault();
+        resetTracker();
+    }
+
+    function trackMove(e){
+        e = e || event;
+        if(! $(el).data('mouse-tracker-start')['x']) return;
+        e.preventDefault();
+        var movement = {
+            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
+            t: Date.now()
+        };
+        $(el).data('mouse-tracker-move', movement);
+        evalTrackerData();
+    }
+};
+
+BLSliderObjects.PrepDOM.prototype.getSlides = function() {
+    return this.slides;
+};
+
+BLSliderObjects.PrepDOM.prototype.kill = function(slides, id) {
+    var el = this.el;
+    controllers[id].stop();
+    /*
+     * We must restore the original css values
+     * so the container element can display
+     * exactly the same before we manipulate the DOM
+     */
+    $(el).css({
+        position: $(el).data('position'),
+        width: $(el).data('width'),
+        height: $(el).data('height'),
+        overflow: $(el).data('overflow')
+    });
+
+    /*
+     * Now we can restore it back
+     */
+    $(el).html('');
+    var slideCount = slides.length;
+    while(slides.length > 0) {
+        $(slides.shift()).clone(true).appendTo(el);
+    }
+    controllers[id] = null;
+    $(el).data('BLSliderControllerId', null);
+    $(el).data('BLSliderSlides', null);
+    return (slideCount === $(el).children().length);
+};
+
+BLSliderObjects.Timer = function (self) {
+    this.timerHandle = false;
+    this.self = self;
+};
+
+BLSliderObjects.Timer.prototype.open = function(params) {
+    if(this.timerHandle) clearInterval(this.timerHandle);
+    this.timerHandle = false;
+    var control = this.self;
+    return(this.timerHandle = setInterval(function(){
+        control.next();
+    }, params.interval + params.duration));
+};
+
+BLSliderObjects.Timer.prototype.close = function() {
+    clearInterval(this.timerHandle);
+    this.timerHandle = false;
+    return true;
+};
+
+BLSliderObjects.Move = function(el, params) {
+    this.el = el;
+    this.params = params;
+    this.animType = 'slide';
+
+    if(typeof this[params.animation.toLowerCase()] !== "undefined")
+        this.animType = params.animation.toLowerCase();
+};
+
+BLSliderObjects.Move.prototype.to = function(slideId, dir) {
+    var el = this.el,
+            animType = this.animType,
+            params = this.params;
+    
+    if(checkCurrentSlide()) return;
+
+    var anim = this;
+    setTimeout(function() {
+        anim[animType](slideId, dir);
+    }, params.delay);
+
+    function checkCurrentSlide() {
+        var slide = $(el).data('BLSliderSlides')[slideId];
+        var $currentSlide = $(el).find('.BLSlider-current-slide');
+
+        if(!$currentSlide.length) {
+            var $currentSlide = $('<div class="BLSlider-current-slide"></div>').appendTo($(el).children('.BLSliderContainer'));
+            setSlide($currentSlide);
+            $currentSlide.append($(slide).clone());
+            return true;
+
+        }
+        return false;
+    }
+};
+
+BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+    
+    var $slides = getSlides(el, { left : (100 * dir) + '%' });
+
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+
+    var transition = setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing);
+
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = { left: (-100 * dir) + '%' },
+        nextCSS = { left: 0 };
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+};
+
+BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+    
+    var $slides = getSlides(el, { opacity: 0, zIndex: 9 - dir });
+
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+
+    var transition = setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing);
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = { opacity: 0 },
+        nextCSS = { opacity: 1 };
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+};
+
+BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+    
+    var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')');
+    var $slides = getSlides(el, transform);
+
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+
+    var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')'),
+        nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1)');
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+};
+
+BLSliderObjects.Move.prototype.turn = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+
+    var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
+    var $slides = getSlides(el, transform);
+
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+
+    var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = setPrefix('opacity: 0;'),
+        nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1) rotateZ(' + (0 + (dir * 360)) + 'deg)');
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+};
+
+function setPrefix(prop) {
+    var setProp = {};
+    var prefixes = [ "-webkit-", "-moz-", "-ms-", "-o-", "" ];
+    if(prop) {
+        prop = prop.split(';');
+        for(var i = 0, len = prop.length; i < len; i++) {
+            if(prop[i]) {
+                if(prop[i].indexOf('-pre-') > -1) {
+                    for(var j = 0, len = prefixes.length; j < len; j++) {
+                        var dummy = prop[i].replace(/-pre-/g, prefixes[j]);
+                        addProp(dummy, setProp);
+                    }
+                } else {
+                    addProp(prop[i], setProp);
+                }
+            }
+        }
+    }
+
+    function addProp(prop, setProp) {
+        prop = prop.split(':');
+        if(prop.length === 2) {
+            setProp[prop[0].split(' ').join('')] = prop[1];
+        }
+    }
+
+    return setProp;
+}
+
+function setSlide($slide, css) {
+    css = css || {};
+    $slide.css(
+        $.extend({
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+            zIndex: 9
+        }, css)
+    );
+}
+
+function getSlides(el, css) {
+    var slides = {
+        next : $('<div class="BLSlider-next-slide"></div>').appendTo($(el).children('.BLSliderContainer')),
+        current : $(el).find('.BLSlider-current-slide')
+    };
+    
+    setSlide(slides.current);
+    setSlide(slides.next, css);
+
+    return slides;
+}
+
+function shiftSlides($slides, timer, currentCSS, nextCSS) {
+    setTimeout(function(){
+       $slides.current.css(currentCSS);
+       $slides.next.css(nextCSS);
+    }, securityDelay / 2);
+    
+    setTimeout(function() {
+        $slides.current.remove();
+        $slides.next.attr('class', 'BLSlider-current-slide').css(setPrefix('-pre-transition : none'));
+    }, timer);
+}
 var controllers = [];
 
 var securityDelay = 100;
@@ -23,12 +422,12 @@ var BLSlider = function (el, params) {
         moving = false;
     
     params.onBeforeInit($(el));
-    
+
     var prepDOM = new BLSliderObjects.PrepDOM(el, params);
     var move = new BLSliderObjects.Move(el, params);
     var timer = new BLSliderObjects.Timer(this);
 
-    this.slides = prepDOM.init();
+    this.slides = prepDOM.getSlides();
     
     this.next = function() {
         var slideId = (currentSlide + 1) % this.slides.length;
@@ -49,7 +448,7 @@ var BLSlider = function (el, params) {
         
         dir = dir || ( (slideId - currentSlide) / Math.max( 1, Math.abs(slideId - currentSlide) ) );
 
-        move.init(slideId, dir);
+        move.to(slideId, dir);
         /*
          * If is on autoPlay we must reset the play timer
          */
@@ -192,396 +591,4 @@ $.fn.BLSKill = function() {
     return success;
 };
 /* -o- */
-BLSliderObjects.PrepDOM = function (el, params) {
-    
-    this.init = function() {
-        /**
-         * We must keep some original values before manipulating the DOM
-         */
-        $(el).data('width', el.style.width);
-        $(el).data('height', el.style.height);
-        $(el).data('position', el.style.position);
-        $(el).data('overflow', el.style.overflow);
-
-        /**
-         * Container object must be positioned
-         */
-        if (!$(el).css('position') || $(el).css('position') == 'static')
-            $(el).css('position', 'relative');
-        
-        /**
-         * Now we can store the children elements
-         * in an array to send. After that we can
-         * delete all the child nodes from our container
-         */
-        var slides = [];
-        $(el).children().each(function() {
-            slides.push($(this).clone()[0]);
-        });
-        
-        $(el).html('<div class="BLSliderContainer"></div>');
-        $(el).find('.BLSliderContainer').css({
-            position: 'relative',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden'
-        });
-        
-        createControls(slides);
-        
-        resetTracker();
-
-        trackMouse();
-        
-        trackTouch();
-        
-        return slides;
-    };
-    
-    this.kill = function(slides, id) {
-        controllers[id].stop();
-        /*
-         * We must restore the original css values
-         * so the container element can display
-         * exactly the same before we manipulate the DOM
-         */
-        $(el).css({
-            position: $(el).data('position'),
-            width: $(el).data('width'),
-            height: $(el).data('height'),
-            overflow: $(el).data('overflow')
-        });
-
-        /*
-         * Now we can restore it back
-         */
-        $(el).html('');
-        var slideCount = slides.length;
-        while(slides.length > 0) {
-            $(slides.shift()).clone(true).appendTo(el);
-        }
-        controllers[id] = null;
-        $(el).data('BLSliderControllerId', null);
-        $(el).data('BLSliderSlides', null);
-        return (slideCount === $(el).children().length);
-    };
-    
-    function createControls(slides) {
-        var $container = $(el).children('.BLSliderContainer');
-
-        if(params.autoPlay && params.pauseOnHover) {
-            $container.hover(function() {
-                $(el).BLSStop();
-            }).mouseleave(function() {
-                $(el).BLSPlay();
-            });
-        }
-        
-        if(params.showNavigation === 'never' && params.showPagination === 'never') return;
-        
-        if(params.showNavigation !== 'never') {
-            $container.append(
-                '<div class="BLSlider-prev" data-role="prev"></div>' + 
-                '<div class="BLSlider-next" data-role="next"></div>'
-            );
-            if(params.showNavigation === 'always') {
-                $('.BLSlider-prev, .BLSlider-next'). addClass('show-always');
-            }
-        }
-        if(params.showPagination !== 'never') {
-            $container.append('<div class="BLSlider-buttons"><ul class="BLSliderButtonList"></ul></div>');
-            for(var i = 0, len = slides.length; i < len; i++) {
-                $container.find('.BLSliderButtonList').append('<li class="BLSliderControlButton" data-slide-id="' + i + '" data-role="moveTo"></li>');
-            }
-            if(params.showPagination === 'always') {
-                $('.BLSlider-buttons'). addClass('show-always');
-            }
-        }
-        
-        $container.click(function(e){
-            e = e || event;
-            var clickedTo = e.toElement || e.relatedTarget || e.target || false;
-            if(!clickedTo) return false;
-            
-            switch($(clickedTo).data('role')) {
-                case 'prev':
-                    $(el).BLSPrev();
-                    break;
-                case 'next':
-                    $(el).BLSNext();
-                    break;
-                case 'moveTo':
-                    var slideId = parseInt($(clickedTo).data('slide-id')) || 0;
-                    $(el).BLSMoveTo(slideId);
-                    break;
-            }
-        });
-    }
-    
-    function trackMouse() {
-        $(el).on('mousedown', trackStart).on('mouseup', trackStop).on('mousemove', trackMove);
-    }
-
-    function trackTouch() {
-        $(el).on('touchstart', trackStart).on('touchend', trackStop).on('touchmove', trackMove);
-    }
-
-    function evalTrackerData() {
-        var data = {
-                start : $(el).data('mouse-tracker-start'),
-                movement: $(el).data('mouse-tracker-move')
-            };
-        
-        if(!data.start.x) return;
-        
-        var xDif = data.movement.x - data.start.x;
-        
-        if(!xDif) return;
-        
-        var dir = xDif / Math.abs(xDif);
-        xDif = Math.abs(xDif);
-        
-        var tDif = data.movement.t - data.start.t;
-        
-        if(xDif > 50) {
-            if(dir > 0) {
-                $(el).BLSPrev();
-            } else {
-                $(el).BLSNext();
-            }
-            resetTracker();
-        }
-
-        if(tDif > 150) {
-            resetTracker();
-        }
-    }
-    
-    function resetTracker() {
-        $(el).data('mouse-tracker-start', {});
-        $(el).data('mouse-tracker-move', {});
-    }
-    
-    function trackStart(e) {
-        e = e || event;
-        if(e.button !== 0 && e.button !== undefined) return;
-        if(e.button !== undefined) e.preventDefault();
-        
-        var start = {
-            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
-            t: Date.now()
-        };
-        $(el).data('mouse-tracker-start', start);
-    }
-    
-    function trackStop(e) {
-        e = e || event;
-        e.preventDefault();
-        resetTracker();
-    }
-
-    function trackMove(e){
-        e = e || event;
-        if(! $(el).data('mouse-tracker-start')['x']) return;
-        e.preventDefault();
-        var movement = {
-            x: e.pageX || e.originalEvent.changedTouches[0].pageX,
-            t: Date.now()
-        };
-        $(el).data('mouse-tracker-move', movement);
-        evalTrackerData();
-    }
-};
-
-BLSliderObjects.Timer = function (self) {
-    
-    var timerHandle = false;
-    
-    this.open = function(params) {
-        if(timerHandle) clearInterval(timerHandle);
-        timerHandle = false;
-        return(timerHandle = setInterval(function(){
-            self.next();
-        }, params.interval + params.duration));
-    };
-    
-    this.close = function() {
-        clearInterval(timerHandle);
-        timerHandle = false;
-        return true;
-    };
-};
-
-BLSliderObjects.Move = function(el, params) {
-    var availableAnimations = [
-        'slide',
-        'fade',
-        'scale',
-        'turn'
-    ];
-    
-    this.init = function(slideId, dir) {
-        var animType = 'slide';
-        
-        if(availableAnimations.indexOf(params.animation.toLowerCase()) !== -1)
-            animType = params.animation.toLowerCase();
-        
-        if(checkCurrentSlide(el, slideId)) return;
-
-        var anim = new BLSliderObjects[animType](el, dir, params);
-        setTimeout(function() {
-            anim.init(slideId);
-        }, params.delay);
-    };
-
-    function checkCurrentSlide(el, slideId) {
-        var slide = $(el).data('BLSliderSlides')[slideId];
-        var $currentSlide = $(el).find('.BLSlider-current-slide');
-
-        if(!$currentSlide.length) {
-            var $currentSlide = $('<div class="BLSlider-current-slide"></div>').appendTo($(el).children('.BLSliderContainer'));
-            setSlide($currentSlide);
-            $currentSlide.append($(slide).clone());
-            return true;
-
-        }
-        return false;
-    }
-};
-BLSliderObjects.slide = function(el, dir, params) {
-    this.init = function(slideId) {
-        var $slides = getSlides(el, { left : (100 * dir) + '%' });
-
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-        
-        var transition = setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing);
-
-        $slides.current.css( transition );
-        $slides.next.css( transition );
-
-        var currentCSS = { left: (-100 * dir) + '%' },
-            nextCSS = { left: 0 };
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
-};
-
-BLSliderObjects.fade = function(el, dir, params) {
-    this.init = function(slideId) {
-        var $slides = getSlides(el, { opacity: 0, zIndex: 9 - dir });
-
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-        
-        var transition = setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing);
-        $slides.current.css( transition );
-        $slides.next.css( transition );
-
-        var currentCSS = { opacity: 0 },
-            nextCSS = { opacity: 1 };
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
-};
-
-BLSliderObjects.scale = function(el, dir, params) {
-    this.init = function(slideId) {
-        var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')');
-        var $slides = getSlides(el, transform);
-
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-
-        var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
-        $slides.current.css( transition );
-        $slides.next.css( transition );
-        
-        var currentCSS = setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')'),
-            nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1)');
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
-};
-
-BLSliderObjects.turn = function(el, dir, params) {
-    this.init = function(slideId) {
-        var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
-        var $slides = getSlides(el, transform);
-
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-
-        var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
-        $slides.current.css( transition );
-        $slides.next.css( transition );
-        
-        var currentCSS = setPrefix('opacity: 0;'),
-            nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1) rotateZ(' + (0 + (dir * 360)) + 'deg)');
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
-};
-
-function setPrefix(prop) {
-    var setProp = {};
-    var prefixes = [ "-webkit-", "-moz-", "-ms-", "-o-", "" ];
-    if(prop) {
-        prop = prop.split(';');
-        for(var i = 0, len = prop.length; i < len; i++) {
-            if(prop[i]) {
-                if(prop[i].indexOf('-pre-') > -1) {
-                    for(var j = 0, len = prefixes.length; j < len; j++) {
-                        var dummy = prop[i].replace(/-pre-/g, prefixes[j]);
-                        addProp(dummy, setProp);
-                    }
-                } else {
-                    addProp(prop[i], setProp);
-                }
-            }
-        }
-    }
-
-    function addProp(prop, setProp) {
-        prop = prop.split(':');
-        if(prop.length === 2) {
-            setProp[prop[0].split(' ').join('')] = prop[1];
-        }
-    }
-
-    return setProp;
-}
-
-function setSlide($slide, css) {
-    css = css || {};
-    $slide.css(
-        $.extend({
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden',
-            zIndex: 9
-        }, css)
-    );
-}
-
-function getSlides(el, css) {
-    var slides = {
-        next : $('<div class="BLSlider-next-slide"></div>').appendTo($(el).children('.BLSliderContainer')),
-        current : $(el).find('.BLSlider-current-slide')
-    };
-    
-    setSlide(slides.current);
-    setSlide(slides.next, css);
-
-    return slides;
-}
-
-function shiftSlides($slides, timer, currentCSS, nextCSS) {
-    setTimeout(function(){
-       $slides.current.css(currentCSS);
-       $slides.next.css(nextCSS);
-    }, securityDelay / 2);
-    
-    setTimeout(function() {
-        $slides.current.remove();
-        $slides.next.attr('class', 'BLSlider-current-slide').css(setPrefix('-pre-transition : none'));
-    }, timer);
-}
 }(jQuery));

@@ -1,68 +1,72 @@
-BLSliderObjects.slide = function(el, dir, params) {
-    this.init = function(slideId) {
-        var $slides = getSlides(el, { left : (100 * dir) + '%' });
+BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+    
+    var $slides = getSlides(el, { left : (100 * dir) + '%' });
 
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-        
-        var transition = setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing);
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
 
-        $slides.current.css( transition );
-        $slides.next.css( transition );
+    var transition = setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing);
 
-        var currentCSS = { left: (-100 * dir) + '%' },
-            nextCSS = { left: 0 };
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = { left: (-100 * dir) + '%' },
+        nextCSS = { left: 0 };
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
 };
 
-BLSliderObjects.fade = function(el, dir, params) {
-    this.init = function(slideId) {
-        var $slides = getSlides(el, { opacity: 0, zIndex: 9 - dir });
+BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+    
+    var $slides = getSlides(el, { opacity: 0, zIndex: 9 - dir });
 
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-        
-        var transition = setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing);
-        $slides.current.css( transition );
-        $slides.next.css( transition );
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
 
-        var currentCSS = { opacity: 0 },
-            nextCSS = { opacity: 1 };
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
+    var transition = setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing);
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = { opacity: 0 },
+        nextCSS = { opacity: 1 };
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
 };
 
-BLSliderObjects.scale = function(el, dir, params) {
-    this.init = function(slideId) {
-        var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')');
-        var $slides = getSlides(el, transform);
+BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
+    
+    var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')');
+    var $slides = getSlides(el, transform);
 
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
 
-        var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
-        $slides.current.css( transition );
-        $slides.next.css( transition );
-        
-        var currentCSS = setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')'),
-            nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1)');
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
+    var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')'),
+        nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1)');
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
 };
 
-BLSliderObjects.turn = function(el, dir, params) {
-    this.init = function(slideId) {
-        var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
-        var $slides = getSlides(el, transform);
+BLSliderObjects.Move.prototype.turn = function(slideId, dir) {
+    var el = this.el;
+    var params = this.params;
 
-        $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+    var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform: scale(.2) rotateZ(0deg)');
+    var $slides = getSlides(el, transform);
 
-        var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
-        $slides.current.css( transition );
-        $slides.next.css( transition );
-        
-        var currentCSS = setPrefix('opacity: 0;'),
-            nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1) rotateZ(' + (0 + (dir * 360)) + 'deg)');
-        shiftSlides($slides, params.interval, currentCSS, nextCSS);
-    };
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+
+    var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
+    $slides.current.css( transition );
+    $slides.next.css( transition );
+
+    var currentCSS = setPrefix('opacity: 0;'),
+        nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1) rotateZ(' + (0 + (dir * 360)) + 'deg)');
+    shiftSlides($slides, params.interval, currentCSS, nextCSS);
 };
 
 function setPrefix(prop) {
