@@ -1,20 +1,18 @@
 BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
-    var el = this.el;
     var params = this.params;
+
+    var preps = {
+        next: {
+            before: { left : (100 * dir) + '%' },
+            after: { left: 0 }
+        },
+        current: {
+            after: { left: (-100 * dir) + '%' }
+        },
+        trans: arguments[2] ? {} : setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing)
+    };
     
-    var $slides = getSlides(el, { left : (100 * dir) + '%' });
-
-    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-
-    var transition = setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing);
-
-    $slides.current.css( transition );
-    $slides.next.css( transition );
-
-    var currentCSS = { left: (-100 * dir) + '%' },
-        nextCSS = { left: 0 };
-
-    shiftSlides($slides, params.interval, currentCSS, nextCSS, arguments[2]);
+    this.execute(slideId, preps, arguments[2]);
 };
 
 BLSliderObjects.Move.prototype.jsslide = function(slideId, dir) {
@@ -22,21 +20,20 @@ BLSliderObjects.Move.prototype.jsslide = function(slideId, dir) {
 };
 
 BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
-    var el = this.el;
     var params = this.params;
     
-    var $slides = getSlides(el, { opacity: 0, zIndex: 9 - dir });
-
-    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-
-    var transition = setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing);
-    $slides.current.css( transition );
-    $slides.next.css( transition );
-
-    var currentCSS = { opacity: 0 },
-        nextCSS = { opacity: 1 };
-
-    shiftSlides($slides, params.interval, currentCSS, nextCSS, arguments[2]);
+    var preps = {
+        next: {
+            before: { opacity: 0, zIndex: 9 - dir },
+            after: { opacity: 1 }
+        },
+        current: {
+            after: { opacity: 0 }
+        },
+        trans: arguments[2] ? {} : setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing)
+    };
+    
+    this.execute(slideId, preps, arguments[2]);
 };
 
 BLSliderObjects.Move.prototype.jsfade = function(slideId, dir) {
@@ -44,21 +41,20 @@ BLSliderObjects.Move.prototype.jsfade = function(slideId, dir) {
 };
 
 BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
-    var el = this.el;
     var params = this.params;
     
-    var transform = setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')');
-    var $slides = getSlides(el, transform);
-
-    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
-
-    var transition = setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing);
-    $slides.current.css( transition );
-    $slides.next.css( transition );
-
-    var currentCSS = setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')'),
-        nextCSS = setPrefix('opacity: 1; -pre-transform: scale(1)');
-    shiftSlides($slides, params.interval, currentCSS, nextCSS);
+    var preps = {
+        next: {
+            before: setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')'),
+            after: setPrefix('opacity: 1; -pre-transform: scale(1)')
+        },
+        current: {
+            after: setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')')
+        },
+        trans: setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing)
+    };
+    
+    this.execute(slideId, preps);
 };
 
 function setPrefix(prop) {

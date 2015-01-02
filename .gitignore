@@ -48,4 +48,4 @@ Temporary Items
 /node_modules/
 /.sass-cache/
 /coverage/
-*.mdj
+*.class.violet.html

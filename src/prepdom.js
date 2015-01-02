@@ -11,12 +11,9 @@ BLSliderObjects.PrepDOM = function (el, params) {
     this.el = el;
     
     /**
-     * We must keep some original values before manipulating the DOM
+     * We must keep original style values before manipulating the DOM
      */
-    $(el).data('width', el.style.width);
-    $(el).data('height', el.style.height);
-    $(el).data('position', el.style.position);
-    $(el).data('overflow', el.style.overflow);
+    $(el).data('style', el.getAttribute('style'));
 
     /**
      * Container object must be positioned
@@ -195,23 +192,16 @@ BLSliderObjects.PrepDOM.prototype.kill = function(slides, id) {
      * so the container element can display
      * exactly the same before we manipulate the DOM
      */
-    $(el).css({
-        position: $(el).data('position'),
-        width: $(el).data('width'),
-        height: $(el).data('height'),
-        overflow: $(el).data('overflow')
-    });
+    el.setAttribute('style', $(el).data('style') || '');
 
     /*
      * Now we can restore it back
      */
     $(el).html('');
-    var slideCount = slides.length;
     while(slides.length > 0) {
         $(slides.shift()).clone(true).appendTo(el);
     }
     controllers[id] = null;
     $(el).data('BLSliderControllerId', null);
     $(el).data('BLSliderSlides', null);
-    return (slideCount === $(el).children().length);
 };

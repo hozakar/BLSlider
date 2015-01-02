@@ -32,37 +32,8 @@ describe("BLSlider constructs", function() {
         expect($('.slider').data('BLSliderSlides').length).toEqual(slideCount);
     });
 
-    it("and can call BLSNext method if not moving", function() {
-        expect($('.slider').BLSNext()).toEqual([false]);
-        setTimeout(function() {
-            expect($('.slider').BLSNext()).toEqual([1]);
-        }, 800);
-    });
-
-    it("and can call BLSPrev method if not moving", function() {
-        expect($('.slider').BLSPrev()).toEqual([false]);
-        setTimeout(function() {
-            expect($('.slider').BLSPrev()).toEqual([0]);
-        }, 800);
-    });
-
-    it("and can call BLSMoveTo method if not moving", function() {
-        expect($('.slider').BLSMoveTo(2)).toEqual([false]);
-        setTimeout(function() {
-            expect($('.slider').BLSMoveTo(2)).toEqual([2]);
-        }, 800);
-    });
-
-    it("and can call BLSPlay method", function() {
-        expect($('.slider').BLSPlay()).toBe(true);
-    });
-
-    it("and can call BLSStop method", function() {
-        expect($('.slider').BLSStop()).toBe(true);
-    });
-
     it("and can call BLSKill method", function() {
-        expect($('.slider').BLSKill()).toBe(true);
+        $('.slider').BLSKill();
         expect($('.slider').data('BLSliderControllerId')).toBeNull();
         expect($('.slider').data('BLSliderSlides')).toBeNull();
         expect($('.slider').children().length).toBe(slideCount);

@@ -5,7 +5,7 @@ BLSliderObjects.Move = function(el, params) {
     this.animPrefix = '';
 
     if(msie < 10) this.animPrefix = 'js';
-    
+
     this.animType = this.animPrefix + this.animType;
     
     if(typeof this[this.animPrefix + params.animation.toLowerCase()] !== "undefined")
@@ -41,6 +41,32 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
             return true;
 
         }
+        
         return false;
     }
+};
+
+BLSliderObjects.Move.prototype.execute = function(slideId, preps) {
+    var el = this.el,
+        params = this.params;
+    
+    if(typeof preps !== 'object') preps = {};
+    preps = $.extend({
+        next: {
+            before: { left : 0 },
+            after: { left: 0 }
+        },
+        current: {
+            after: { left: 0 }
+        },
+        trans: {}
+    }, preps);
+    
+    var $slides = getSlides(el, preps.next.before);
+    $slides.next.append($(el).data('BLSliderSlides')[slideId]);
+    
+    $slides.current.css( preps.trans );
+    $slides.next.css( preps.trans );
+
+    shiftSlides($slides, params.interval, preps.current.after, preps.next.after, arguments[2]);
 };
