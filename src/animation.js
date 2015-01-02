@@ -12,11 +12,7 @@ BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
         trans: arguments[2] ? {} : setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing)
     };
     
-    this.execute(slideId, preps, arguments[2]);
-};
-
-BLSliderObjects.Move.prototype.jsslide = function(slideId, dir) {
-    this.slide(slideId, dir, true);
+    this.execute(slideId, preps);
 };
 
 BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
@@ -33,11 +29,7 @@ BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
         trans: arguments[2] ? {} : setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing)
     };
     
-    this.execute(slideId, preps, arguments[2]);
-};
-
-BLSliderObjects.Move.prototype.jsfade = function(slideId, dir) {
-    this.fade(slideId, dir, true);
+    this.execute(slideId, preps);
 };
 
 BLSliderObjects.Move.prototype.scale = function(slideId, dir) {

@@ -2,14 +2,12 @@ BLSliderObjects.Move = function(el, params) {
     this.el = el;
     this.params = params;
     this.animType = 'slide';
-    this.animPrefix = '';
+    this.js = false;
 
-    if(msie < 10) this.animPrefix = 'js';
+    if(msie < 10) this.js = true;
 
-    this.animType = this.animPrefix + this.animType;
-    
-    if(typeof this[this.animPrefix + params.animation.toLowerCase()] !== "undefined")
-        this.animType = this.animPrefix + params.animation.toLowerCase();
+    if(typeof this[params.animation.toLowerCase()] !== "undefined")
+        this.animType = params.animation.toLowerCase();
 };
 
 BLSliderObjects.Move.prototype.to = function(slideId, dir) {
@@ -19,8 +17,7 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
     
     if(checkCurrentSlide()) return;
     
-    var slideAnim = $( $(el).data('BLSliderSlides')[slideId] ).data('animation') || '';
-    if(slideAnim) slideAnim = this.animPrefix + slideAnim;
+    var slideAnim = $( $(el).data('BLSliderSlides')[slideId] ).data('animation') || this.animType;
     
     if(typeof this[slideAnim.toLowerCase()] !== "undefined")
         animType = slideAnim.toLowerCase();
@@ -65,8 +62,10 @@ BLSliderObjects.Move.prototype.execute = function(slideId, preps) {
     var $slides = getSlides(el, preps.next.before);
     $slides.next.append($(el).data('BLSliderSlides')[slideId]);
     
-    $slides.current.css( preps.trans );
-    $slides.next.css( preps.trans );
+    if(!this.js) {
+        $slides.current.css( preps.trans );
+        $slides.next.css( preps.trans );
+    }
 
-    shiftSlides($slides, params.interval, preps.current.after, preps.next.after, arguments[2]);
+    shiftSlides($slides, params.interval, preps.current.after, preps.next.after, this.js);
 };

@@ -110,7 +110,7 @@ $.fn.BLSlider = function (params) {
 /* End: Plug-in Init */
 
 /* Plugin needs some easy to reach functionalities */
-function validControllers(elements, command, slideId) {
+BLSliderObjects.validControllers = function (elements, command, slideId) {
     var controllersArray = [];
     for(var i = 0, len = elements.length; i < len; i++) {
         var id = $(elements[i]).data('BLSliderControllerId');
@@ -122,30 +122,30 @@ function validControllers(elements, command, slideId) {
     for(var i = 0, len = controllersArray.length; i < len; i++) {
         controllersArray[i][command](slideId);
     }
-}
+};
 
 $.fn.BLSNext = function() {
-    validControllers(this, 'next');
+    BLSliderObjects.validControllers(this, 'next');
 };
 
 $.fn.BLSPrev = function() {
-    validControllers(this, 'prev');
+    BLSliderObjects.validControllers(this, 'prev');
 };
 
 $.fn.BLSMoveTo = function(slideId) {
     if(typeof slideId === 'undefined') return;
-    validControllers(this, 'moveTo', slideId);
+    BLSliderObjects.validControllers(this, 'moveTo', slideId);
 };
 
 $.fn.BLSPlay = function() {
-    validControllers(this, 'play');
+    BLSliderObjects.validControllers(this, 'play');
 };
 
 $.fn.BLSStop = function() {
-    validControllers(this, 'stop');
+    BLSliderObjects.validControllers(this, 'stop');
 };
 
 $.fn.BLSKill = function() {
-    validControllers(this, 'kill');
+    BLSliderObjects.validControllers(this, 'kill');
 };
 /* -o- */
