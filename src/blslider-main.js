@@ -99,9 +99,8 @@ $.fn.BLSlider = function (params) {
     };
     
     var values = $.extend(defaults, params);
-
     for(var i = 0, len = this.length; i < len; i++) {
-        if(typeof $(this).data('BLSliderControllerId') !== 'number')
+        if(typeof $(this[i]).data('BLSliderControllerId') !== 'number')
             controllers.push(new BLSlider(this[i], values));
     }
     
