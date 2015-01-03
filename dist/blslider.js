@@ -260,6 +260,7 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
             animType = this.animType,
             params = this.params;
     
+    var anim = this;
     if(checkCurrentSlide()) return;
     
     var slideAnim = $( $(el).data('BLSliderSlides')[slideId] ).data('animation') || this.animType;
@@ -267,7 +268,6 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
     if(typeof this[slideAnim.toLowerCase()] !== "undefined")
         animType = slideAnim.toLowerCase();
     
-    var anim = this;
     setTimeout(function() {
         anim[animType](slideId, dir);
     }, params.delay);
@@ -278,7 +278,7 @@ BLSliderObjects.Move.prototype.to = function(slideId, dir) {
 
         if(!$currentSlide.length) {
             var $currentSlide = $('<div class="BLSlider-current-slide"></div>').appendTo($(el).children('.BLSliderContainer'));
-            setSlide($currentSlide);
+            anim.animFuncs.setSlide($currentSlide);
             $currentSlide.append($(slide).clone());
             return true;
 
@@ -304,7 +304,7 @@ BLSliderObjects.Move.prototype.execute = function(slideId, preps) {
         trans: {}
     }, preps);
     
-    var $slides = getSlides(el, preps.next.before);
+    var $slides = this.animFuncs.getSlides(el, preps.next.before);
     $slides.next.append($(el).data('BLSliderSlides')[slideId]);
     
     if(!this.js) {
@@ -312,7 +312,7 @@ BLSliderObjects.Move.prototype.execute = function(slideId, preps) {
         $slides.next.css( preps.trans );
     }
 
-    shiftSlides($slides, params.interval, preps.current.after, preps.next.after, this.js);
+    this.animFuncs.shiftSlides($slides, params.interval, preps.current.after, preps.next.after, this.js);
 };
 BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
     var params = this.params;
@@ -325,7 +325,7 @@ BLSliderObjects.Move.prototype.slide = function(slideId, dir) {
         current: {
             after: { left: (-100 * dir) + '%' }
         },
-        trans: arguments[2] ? {} : setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing)
+        trans: arguments[2] ? {} : this.animFuncs.setPrefix('-pre-transition : left ' + params.interval + 'ms ' + params.easing)
     };
     
     this.execute(slideId, preps);
@@ -342,7 +342,7 @@ BLSliderObjects.Move.prototype.fade = function(slideId, dir) {
         current: {
             after: { opacity: 0 }
         },
-        trans: arguments[2] ? {} : setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing)
+        trans: arguments[2] ? {} : this.animFuncs.setPrefix('-pre-transition : opacity ' + params.interval + 'ms ' + params.easing)
     };
     
     this.execute(slideId, preps);
@@ -353,93 +353,93 @@ BLSliderObjects.Move.prototype.scale = function(slideId, dir) {
     
     var preps = {
         next: {
-            before: setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')'),
-            after: setPrefix('opacity: 1; -pre-transform: scale(1)')
+            before: this.animFuncs.setPrefix('opacity: 0; z-index: ' + (9 - dir) + '; -pre-transform : scale(' + ( (10 - (dir * 8)) / 10 ) + ')'),
+            after: this.animFuncs.setPrefix('opacity: 1; -pre-transform: scale(1)')
         },
         current: {
-            after: setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')')
+            after: this.animFuncs.setPrefix('opacity: 0; -pre-transform: scale(' + ( (10 + (dir * 6)) / 10 ) + ')')
         },
-        trans: setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing)
+        trans: this.animFuncs.setPrefix('-pre-transition : -pre-transform ' + params.interval + 'ms ' + params.easing + ', opacity ' + (params.interval / 1.25) + 'ms ' + params.easing)
     };
     
     this.execute(slideId, preps);
 };
 
-function setPrefix(prop) {
-    var setProp = {};
-    var prefixes = [ "-webkit-", "-moz-", "-ms-", "-o-", "" ];
-    if(prop) {
-        prop = prop.split(';');
-        for(var i = 0, len = prop.length; i < len; i++) {
-            if(prop[i]) {
-                if(prop[i].indexOf('-pre-') > -1) {
-                    for(var j = 0, len = prefixes.length; j < len; j++) {
-                        var dummy = prop[i].replace(/-pre-/g, prefixes[j]);
-                        addProp(dummy, setProp);
+
+BLSliderObjects.Move.prototype.animFuncs = {
+    setPrefix: function(prop) {
+        var setProp = {};
+        var prefixes = [ "-webkit-", "-moz-", "-ms-", "-o-", "" ];
+        if(prop) {
+            prop = prop.split(';');
+            for(var i = 0, len = prop.length; i < len; i++) {
+                if(prop[i]) {
+                    if(prop[i].indexOf('-pre-') > -1) {
+                        for(var j = 0, len = prefixes.length; j < len; j++) {
+                            var dummy = prop[i].replace(/-pre-/g, prefixes[j]);
+                            addProp(dummy, setProp);
+                        }
+                    } else {
+                        addProp(prop[i], setProp);
                     }
-                } else {
-                    addProp(prop[i], setProp);
                 }
             }
         }
-    }
 
-    function addProp(prop, setProp) {
-        prop = prop.split(':');
-        if(prop.length === 2) {
-            setProp[prop[0].split(' ').join('')] = prop[1];
+        function addProp(prop, setProp) {
+            prop = prop.split(':');
+            if(prop.length === 2) {
+                setProp[prop[0].split(' ').join('')] = prop[1];
+            }
         }
+
+        return setProp;
+    },
+    shiftSlides: function($slides, timer, currentCSS, nextCSS, js) {
+        if(js) {
+            setTimeout(function(){
+               $slides.current.animate(currentCSS, timer);
+               $slides.next.animate(nextCSS, timer);
+            }, securityDelay / 2);
+        } else {
+            setTimeout(function(){
+               $slides.current.css(currentCSS);
+               $slides.next.css(nextCSS);
+            }, securityDelay / 2);
+        }
+
+        var self = this;
+        setTimeout(function() {
+            $slides.current.remove();
+            $slides.next.attr('class', 'BLSlider-current-slide').css(self.setPrefix('-pre-transition : none'));
+        }, timer);
+    },
+    setSlide: function($slide, css) {
+        css = css || {};
+        $slide.css(
+            $.extend({
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                width: '100%',
+                height: '100%',
+                overflow: 'hidden',
+                zIndex: 9
+            }, css)
+        );
+    },
+    getSlides: function(el, css) {
+        var slides = {
+            next : $('<div class="BLSlider-next-slide"></div>').appendTo($(el).children('.BLSliderContainer')),
+            current : $(el).find('.BLSlider-current-slide')
+        };
+
+        this.setSlide(slides.current);
+        this.setSlide(slides.next, css);
+
+        return slides;
     }
-
-    return setProp;
-}
-
-function setSlide($slide, css) {
-    css = css || {};
-    $slide.css(
-        $.extend({
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            width: '100%',
-            height: '100%',
-            overflow: 'hidden',
-            zIndex: 9
-        }, css)
-    );
-}
-
-function getSlides(el, css) {
-    var slides = {
-        next : $('<div class="BLSlider-next-slide"></div>').appendTo($(el).children('.BLSliderContainer')),
-        current : $(el).find('.BLSlider-current-slide')
-    };
-    
-    setSlide(slides.current);
-    setSlide(slides.next, css);
-
-    return slides;
-}
-
-function shiftSlides($slides, timer, currentCSS, nextCSS, js) {
-    if(js) {
-        setTimeout(function(){
-           $slides.current.animate(currentCSS, timer);
-           $slides.next.animate(nextCSS, timer);
-        }, securityDelay / 2);
-    } else {
-        setTimeout(function(){
-           $slides.current.css(currentCSS);
-           $slides.next.css(nextCSS);
-        }, securityDelay / 2);
-    }
-    
-    setTimeout(function() {
-        $slides.current.remove();
-        $slides.next.attr('class', 'BLSlider-current-slide').css(setPrefix('-pre-transition : none'));
-    }, timer);
-}
-
+};
 var controllers = [];
 
 var securityDelay = 100;
